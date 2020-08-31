@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UsersRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Users implements UserInterface
 {
+    const ROLE_USER = 'ROLE_USER';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -40,6 +43,32 @@ class Users implements UserInterface
      * @Assert\NotBlank()
      */
     private $status;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $full_name;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Projects", mappedBy="project_created_by")
+     */
+    private $projects;
+
+    /**
+     * Users constructor.
+     */
+    public function __construct()
+    {
+        $this->projects = new ArrayCollection();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
 
     /**
      * @return mixed
@@ -133,5 +162,21 @@ class Users implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFullName()
+    {
+        return $this->full_name;
+    }
+
+    /**
+     * @param mixed $full_name
+     */
+    public function setFullName($full_name): void
+    {
+        $this->full_name = $full_name;
     }
 }
