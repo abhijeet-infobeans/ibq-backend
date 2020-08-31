@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=UsersRepository::class)
  */
-class Users implements UserInterface
+class Users implements UserInterface, \Serializable
 {
     const ROLE_USER = 'ROLE_USER';
 
@@ -28,9 +28,9 @@ class Users implements UserInterface
     private $email;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="simple_array")
      */
-    private $roles = [];
+    private $roles;
 
     /**
      * @var string The hashed password
@@ -50,7 +50,7 @@ class Users implements UserInterface
     private $full_name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Projects", mappedBy="project_created_by")
+     * @ORM\OneToMany(targetEntity="App\Entity\Projects", mappedBy="user")
      */
     private $projects;
 
@@ -116,20 +116,14 @@ class Users implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getRoles(): array
+    public function getRoles()
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->roles;
     }
 
-    public function setRoles(array $roles): self
+    public function setRoles(array $roles): void
     {
         $this->roles = $roles;
-
-        return $this;
     }
 
     /**
@@ -178,5 +172,24 @@ class Users implements UserInterface
     public function setFullName($full_name): void
     {
         $this->full_name = $full_name;
+    }
+
+    public function serialize()
+    {
+        return serialize([
+            $this->id,
+            $this->email,
+            $this->password
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        list($this->id,
+            $this->email,
+            $this->password) = unserialize($serialized);
     }
 }

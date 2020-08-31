@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 
 use App\Repository\ProjectsRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProjectsRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Projects
 {
@@ -42,11 +43,10 @@ class Projects
     private $project_end_date;
 
     /**
-     * @ORM\Column(type="integer")
      * @ORM\ManyToOne(targetEntity="App\Entity\Users", inversedBy="projects")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $project_created_by;
+    private $user;
 
 
     /**
@@ -54,7 +54,7 @@ class Projects
      */
     public function __construct()
     {
-        $this->project_created_by = new ArrayCollection();
+        $this->user = new ArrayCollection();
     }
     /**
      * @return mixed
@@ -120,25 +120,26 @@ class Projects
         $this->project_end_date = $project_end_date;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getProjectCreatedBy()
-    {
-        return $this->project_created_by;
-    }
-
-    /**
-     * @param mixed $project_created_by
-     */
-    public function setProjectCreatedBy($project_created_by): void
-    {
-        $this->project_created_by = $project_created_by;
-    }
-
-
     public function getId(): ?int
     {
         return $this->id;
     }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param ArrayCollection $user
+     */
+    public function setUser(ArrayCollection $user): void
+    {
+        $this->user = $user;
+    }
+
+
 }

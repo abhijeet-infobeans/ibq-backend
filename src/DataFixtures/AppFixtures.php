@@ -76,14 +76,15 @@ When you want to iterate over the same array multiple times you need to instanti
 
     public function loadUsers(ObjectManager $manager)
     {
-        $user = new Users();
         foreach (self::USERS as $userData)
         {
+            $user = new Users();
             $user->setEmail($userData['email']);
             $user->setRoles($userData['roles']);
             $user->setFullName($userData['full_name']);
             $user->setPassword($this->passwordEncoder->encodePassword($user, $userData['password']));
             $this->addReference($userData['email'], $user);
+            $user->setStatus('active');
             $manager->persist($user);
         }
         $manager->flush();
@@ -91,9 +92,9 @@ When you want to iterate over the same array multiple times you need to instanti
 
     public function loadProjects(ObjectManager $manager)
     {
-        $project = new Projects();
         foreach (self::PROJECTS as $projectData)
         {
+            $project = new Projects();
             $project->setProjectName($projectData['project_name']);
             $project->setProjectDescription($projectData['project_description']);
             $start_date = new DateTime();
@@ -102,7 +103,7 @@ When you want to iterate over the same array multiple times you need to instanti
             $end_date = new DateTime();
             $end_date = $end_date->modify('+'. rand(1,20) . 'day');
             $project->setProjectEndDate($end_date);
-            $project->setProjectCreatedBy($this->getReference(self::USERS[rand(0, count(self::USERS) - 1)]['email']));
+            $project->setUser($this->getReference(self::USERS[rand(0, count(self::USERS) - 1)]['email']));
             $manager->persist($project);
         }
         $manager->flush();
