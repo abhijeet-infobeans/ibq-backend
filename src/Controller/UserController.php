@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\ReadJWTTokenService;
 use App\Service\UserService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -21,11 +22,21 @@ class UserController extends AbstractFOSRestController
      * @var UserService
      */
     private $userService;
+    /**
+     * @var ReadJWTTokenService
+     */
+    private $readJWTTokenService;
 
-    public function __construct(UserService $userService)
+    /**
+     * UserController constructor.
+     * @param UserService $userService
+     * @param ReadJWTTokenService $readJWTTokenService
+     */
+    public function __construct(UserService $userService, ReadJWTTokenService $readJWTTokenService)
     {
 
         $this->userService = $userService;
+        $this->readJWTTokenService = $readJWTTokenService;
     }
 
     /**
@@ -35,7 +46,8 @@ class UserController extends AbstractFOSRestController
      */
     public function getUserByEmail(Request $request): View
     {
-        $userRecord = $this->userService->getUserByEmail($request->get('email'));
+        $email = $this->readJWTTokenService->getUsernameFromToken();
+        $userRecord = $this->userService->getUserByEmail($email);
         $responseArray = [
             'success' => true,
             'data' => $userRecord
